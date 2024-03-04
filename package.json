@@ -1,0 +1,52 @@
+{
+  "name": "ultimate-bot-react",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@coinbase/waas-sdk-example-auth-server": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-example-auth-server/waas-sdk-example-auth-server-2.1.1.tgz",
+    "@coinbase/waas-sdk-viem": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-viem/waas-sdk-viem-2.1.1.tgz",
+    "@coinbase/waas-sdk-web": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-web/waas-sdk-web-2.1.0.tgz",
+    "@coinbase/waas-sdk-web-react": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-web-react/waas-sdk-web-react-2.2.0.tgz",
+    "@coinbase/waas-server-auth": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-server-auth/waas-server-auth-2.1.0.tgz",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "express": "^4.18.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "uuid": "^9.0.1",
+    "viem": "1.19.1",
+    "web-vitals": "^2.1.4"
+  },
+  "overrides": {
+    "typescript": "5.3.3"
+  },
+  "scripts": {
+    "start": "set HTTPS=false&&react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+  }
+}
