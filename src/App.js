@@ -1,25 +1,46 @@
+import "./App.css";
+import ConnectWallet from "./components/ConnectWallet";
+import { WalletProvider } from "@coinbase/waas-sdk-web-react";
 
-import './App.css';
-import ConnectWallet from './components/ConnectWallet'
-import { WalletProvider } from "@coinbase/waas-sdk-web-react"
-
-const fetchExampleAuthServerToken = async () => {
-  // Fetch user-scoped auth token from the example auth server. In a real scenario,
-  // you would authenticate the user yourself and issue a user-scoped token.
-  const resp = await fetch("https://localhost:8082/auth", {
-    method: 'post',
-    headers: { Accept: "application/json", "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: "1d7d5555-cff7-409b-88cc-cd6e19c0c091" })
-  }).then(r => r.json());
+const fetchExampleAuthServerToken = async (uuid) => {
+  const resp = await fetch(
+    "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
+    {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uuid: uuid }),
+    }
+  ).then((r) => r.json());
+  console.log(resp);
   return resp.token;
 };
+
 function App() {
+  const queryParams = new URLSearchParams(window.location.search);
+  const value = queryParams.get("action");
+  const uuid = queryParams.get("uuid");
+
   return (
-    <WalletProvider provideAuthToken={fetchExampleAuthServerToken} autoCreateWallet>
-      <div className="App">
-        <ConnectWallet />
-      </div>
-    </WalletProvider>
+    <>
+      {value === "CREATE" ? (
+        <div>
+          <h1>IN HERE</h1>
+          <WalletProvider
+            provideAuthToken={() => fetchExampleAuthServerToken(uuid)}
+            autoCreateWallet
+          >
+            <div className="App">
+              <ConnectWallet />
+            </div>
+          </WalletProvider>
+        </div>
+      ) : (
+        "Ultimate Bot"
+      )}
+    </>
   );
 }
 
