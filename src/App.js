@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import ConnectWalletV2 from "./components/ConnectWalletV2";
 import { Fernet } from "fernet-ts";
+import SendCrypto from "./components/SendCrypto";
 
 function App() {
   const [decryptedData, setDecryptedData] = useState("");
@@ -38,7 +39,16 @@ function App() {
             <ConnectWalletV2 decryptedData={decryptedData} />
           </div>
         </div>
-      ) : (
+      ) :
+      decryptedData?.action === "SEND_CRYPTO" ? (
+        <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
+          <div className="App">
+            <h1>Ultimate Bot</h1>
+            <SendCrypto decryptedData={decryptedData} />
+          </div>
+        </div>
+      )
+      : (
         <>
           <h1>Ultimate Bot</h1>
         </>
