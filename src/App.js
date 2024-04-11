@@ -9,7 +9,6 @@ function App() {
     window.Telegram.WebApp.setBackgroundColor("#ffffff");
     window.Telegram.WebApp.expand();
   }
-  console.log(window.Telegram?.WebApp?.CloudStorage.getItem("userDetails"));
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const encodedData = urlParams.get("data");
@@ -31,8 +30,9 @@ function App() {
   }, []);
   return (
     <>
-      {decryptedData?.action === "CREATE_MOBILE" ? (
-        <div style={{ backgroundColor: "white" }}>
+      {decryptedData?.action === "CREATE_MOBILE" ||
+      decryptedData?.action === "CREATE_TELEGRAM" ? (
+        <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
           <div className="App">
             <h1>Ultimate Bot</h1>
             <ConnectWalletV2 decryptedData={decryptedData} />

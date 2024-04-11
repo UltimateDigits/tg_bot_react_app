@@ -18,7 +18,8 @@ const fetchExampleAuthServerToken = async (uuid) => {
 };
 
 const ConnectWalletV2 = ({ decryptedData }) => {
-  const { action, firstName, phone_number, uuid, userid } = decryptedData;
+  const { action, firstName, phone_number, uuid, userid, username } =
+    decryptedData;
 
   const [wallet, setWallet] = useState();
   const [walletAddress, setWalletAddress] = useState();
@@ -49,11 +50,14 @@ const ConnectWalletV2 = ({ decryptedData }) => {
       if (addresses && addresses[0]) {
         console.log(addresses[0]);
         const userDetails = {
-          walletAddress: addresses[0],
+          walletAddressImpl: addresses[0],
+          walletAddress: addresses[0]?.address,
           firstName: firstName,
           phone_number: phone_number,
           user_id: userid,
           uuid: uuid,
+          action: action,
+          username: username,
         };
         window.Telegram.WebApp.CloudStorage.setItem(
           "userDetails",
