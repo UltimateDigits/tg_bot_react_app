@@ -1,5 +1,6 @@
-import { useWalletContext } from "@coinbase/waas-sdk-web-react";
+import { InitializeWaas } from "@coinbase/waas-sdk-web";
 import React, { useEffect, useState } from "react";
+import { Triangle } from "react-loader-spinner";
 
 const fetchExampleAuthServerToken = async (uuid) => {
   const resp = await fetch(
@@ -16,39 +17,83 @@ const fetchExampleAuthServerToken = async (uuid) => {
   return resp.token;
 };
 
-const ConnectWalletV2 = ({ action, uuid }) => {
+const ConnectWalletV2 = ({ decryptedData }) => {
+  const { action, firstName, phone_number, uuid, userid } = decryptedData;
+
+  const [wallet, setWallet] = useState();
   const [walletAddress, setWalletAddress] = useState();
-  const { waas, user, isCreatingWallet, wallet } = useWalletContext();
-  const handleLogin = async () => {
-    await waas.login({
-      provideAuthToken: () => fetchExampleAuthServerToken(uuid),
-    });
-  };
-  const handleLogout = async () => {
-    await waas.logout();
-  };
+
   useEffect(() => {
-    if (!user || wallet || isCreatingWallet) return;
+    const intilazeWaas = async () => {
+      const waas = await InitializeWaas({
+        collectAndReportMetrics: true,
+        enableHostedBackups: true,
+        prod: false,
+        projectId: "1994648a1fa8a282f1c3ca917a0379f1f79fbb06",
+      });
+      const user = await waas.auth.login({
+        provideAuthToken: () => fetchExampleAuthServerToken(uuid),
+      });
+      let walletExist;
+      if (waas.wallets.wallet) {
+        walletExist = waas.wallets.wallet;
+      } else if (user.hasWallet) {
+        walletExist = await waas.wallets.restoreFromHostedBackup();
+      } else {
+        walletExist = await waas.wallets.create();
+      }
+      const addresses = await walletExist.addresses.all();
+      setWalletAddress(addresses[0]);
+      setWallet(walletExist);
 
-    if (user.hasWallet) {
-      user.restoreFromHostedBackup();
-    } else {
-      user.create();
-    }
-  }, [user, wallet, isCreatingWallet]);
-  const getWallet = async () => {
-    let walletAddresses = await wallet.addresses.all();
+      if (addresses && addresses[0]) {
+        console.log(addresses[0]);
+        const userDetails = {
+          walletAddress: addresses[0],
+          firstName: firstName,
+          phone_number: phone_number,
+          user_id: userid,
+          uuid: uuid,
+        };
+        window.Telegram.WebApp.CloudStorage.setItem(
+          "userDetails",
+          JSON.stringify(userDetails)
+        );
+        setTimeout(() => {
+          window?.Telegram?.WebApp?.sendData(JSON.stringify(userDetails));
+        }, 3000);
+      }
+    };
+    intilazeWaas();
+  }, []);
 
-    setWalletAddress(walletAddresses[0]);
-  };
-  if (wallet && !walletAddress) getWallet();
-  if (!waas) return <div>WaaS Not Initialized</div>;
-
+  if (!wallet || wallet?.wallets) {
+    return (
+      <>
+        <h2>Creating Wallet</h2>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Triangle
+            visible={true}
+            height="80"
+            width="80"
+            color="#4fa94d"
+            ariaLabel="triangle-loading"
+            wrapperStyle={{}}
+            wrapperClass=""
+          />
+        </div>
+      </>
+    );
+  }
   return (
     <div>
-      {!user && <button onClick={handleLogin}>Login</button>}
-      {user && <p>User is logged in! {walletAddress?.address} </p>}
-      {user && <button onClick={handleLogout}>Logout</button>}
+      {walletAddress && (
+        <>
+          <h2>Wallet Created </h2>
+          <h3>Your Wallet is created {walletAddress?.address} </h3>
+          <p>Browser will close in 3 seconds</p>
+        </>
+      )}
     </div>
   );
 };

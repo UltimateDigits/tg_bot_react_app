@@ -1,30 +1,47 @@
+import { useEffect, useState } from "react";
 import "./App.css";
-import ConnectWallet from "./components/ConnectWallet";
-import { WalletProvider } from "@coinbase/waas-sdk-web-react";
 import ConnectWalletV2 from "./components/ConnectWalletV2";
+import { Fernet } from "fernet-ts";
 
 function App() {
-  const queryParams = new URLSearchParams(window.location.search);
-  const value = queryParams.get("action");
-  const uuid = queryParams.get("uuid");
-
+  const [decryptedData, setDecryptedData] = useState("");
+  if (window?.Telegram?.WebApp) {
+    window.Telegram.WebApp.setBackgroundColor("#ffffff");
+    window.Telegram.WebApp.expand();
+  }
+  console.log(window.Telegram?.WebApp?.CloudStorage.getItem("userDetails"));
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const encodedData = urlParams.get("data");
+    const decryptData = async () => {
+      if (encodedData) {
+        try {
+          const decodedData = atob(encodedData);
+          const secretKey = process.env.REACT_APP_ENCRYPTION_KEY;
+          const f = await Fernet.getInstance(secretKey);
+          const originalText = await f.decrypt(decodedData);
+          const parsedJson = JSON.parse(originalText);
+          setDecryptedData(parsedJson);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+    decryptData();
+  }, []);
   return (
     <>
-      {value === "CREATE" ? (
-        <div>
-          <WalletProvider
-            enableHostedBackups
-            collectAndReportMetrics
-            projectId="1994648a1fa8a282f1c3ca917a0379f1f79fbb06"
-          >
-            <div className="App">
-              <h1>Creating Wallet</h1>
-              <ConnectWalletV2 action={value} uuid={uuid} />
-            </div>
-          </WalletProvider>
+      {decryptedData?.action === "CREATE_MOBILE" ? (
+        <div style={{ backgroundColor: "white" }}>
+          <div className="App">
+            <h1>Ultimate Bot</h1>
+            <ConnectWalletV2 decryptedData={decryptedData} />
+          </div>
         </div>
       ) : (
-        "Ultimate Bot"
+        <>
+          <h1>Ultimate Bot</h1>
+        </>
       )}
     </>
   );
