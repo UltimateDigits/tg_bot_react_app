@@ -20,7 +20,6 @@
     "react-helmet": "^6.1.0",
     "react-loader-spinner": "^6.1.6",
     "react-scripts": "5.0.1",
-    "sjcl": "^1.0.8",
     "uuid": "^9.0.1",
     "viem": "^2.9.16",
     "web-vitals": "^2.1.4"

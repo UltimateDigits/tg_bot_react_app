@@ -23,11 +23,13 @@ const fetchExampleAuthServerToken = async (uuid) => {
 };
 
 const SendCrypto = ({ decryptedData }) => {
-  const { action, firstName, phone_number, uuid, userid, username } =
+  const { action, receiver_wallet, uuid} =
     decryptedData;
-
+  console.log("Receiver wallet - " + receiver_wallet);
+  
   const [wallet, setWallet] = useState();
   const [walletAddress, setWalletAddress] = useState();
+  const [transactionHash, setTransactionHash] = useState();
 
   useEffect(() => {
     const intilazeWaas = async () => {
@@ -54,23 +56,6 @@ const SendCrypto = ({ decryptedData }) => {
       setWallet(walletExist);
     
       console.log(walletExist);
-      
-      if (addresses && addresses[0]) {
-        // console.log(walletAddress);
-        // const walletClient = createWalletClient({
-        //     account: toViem(walletAddress),
-        //     chain: baseSepolia,
-        //     transport: "https://eth-sepolia.g.alchemy.com/v2/N_qpOg81hFyUvaTRSeJP4H93zWiB2sLY",
-        // });
-        
-        // console.log("signing a transaction with address " + walletAddress + "...");
-
-        // const res = await walletClient.sendTransaction({
-        //     account: toViem(walletAddress),
-        //     to: "0x4256c6125b7e7FaC1a69B855a4Aa4BA05276D6cc", // recipient address
-        //     value: parseEther("0.01"), // transaction amount
-        // });
-      }
     };
     intilazeWaas();
   }, []);
@@ -90,7 +75,7 @@ const SendCrypto = ({ decryptedData }) => {
 
             const res = await walletClient.sendTransaction({
                 account: toViem(walletAddress),
-                to: "0x4256c6125b7e7FaC1a69B855a4Aa4BA05276D6cc", // recipient address
+                to: receiver_wallet, // recipient address
                 value: parseEther("0.001"), // transaction amount
             });
 
