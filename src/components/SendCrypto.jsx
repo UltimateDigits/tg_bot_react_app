@@ -78,8 +78,18 @@ const SendCrypto = ({ decryptedData }) => {
                 to: receiver_wallet, // recipient address
                 value: parseEther("0.001"), // transaction amount
             });
+            
+            console.log(res);
 
-            console.log("Res --> " + res);
+            const transactionDetails = {
+              from_wallet: walletAddress,
+              to_wallet: receiver_wallet,
+              transaction_id: res
+            };
+
+            setTimeout(() => {
+              window?.Telegram?.WebApp?.sendData(JSON.stringify(transactionDetails));
+            }, 3000);
         }
     }
     sendCrypto();
@@ -88,19 +98,18 @@ const SendCrypto = ({ decryptedData }) => {
   if (!wallet || wallet?.wallets) {
     return (
       <>
-        <h2>Wallet not present</h2>
+        <h2>Waiting...</h2>
       </>
     );
   }
 
-  
   return (
     <div>
       {walletAddress && (
         <>
-          <h2>Wallet Created </h2>
-          <h3>Your Wallet is created {walletAddress?.address} </h3>
-          <p>Browser will close in 3 seconds</p>
+          <h2>Crypto Sent</h2>
+          {/* <h3>Your Wallet is created {walletAddress?.address} </h3>
+          <p>Browser will close in 3 seconds</p> */}
         </>
       )}
     </div>
