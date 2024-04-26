@@ -1,116 +1,166 @@
+import React, { useEffect, useState } from "react";
 import { InitializeWaas } from "@coinbase/waas-sdk-web";
-import React, { useEffect, useMemo, useState } from "react";
 import { toViem } from "@coinbase/waas-sdk-viem";
 import { createWalletClient, http, parseEther } from "viem";
 import { sepolia } from "viem/chains";
-import { Address } from "@coinbase/waas-sdk-web";
-
+import { ThreeDots } from "react-loader-spinner";
 
 const fetchExampleAuthServerToken = async (uuid) => {
-  console.log("uuid -> " + uuid);
-  const resp = await fetch(
-    "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
-    {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uuid: uuid }),
-    }
-  ).then((r) => r.json());
-  return resp.token;
+  try {
+    const resp = await fetch(
+      "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uuid }),
+      }
+    );
+    const data = await resp.json();
+    return data.token;
+  } catch (error) {
+    console.error("Error fetching auth server token:", error);
+    throw new Error("Failed to fetch auth server token");
+  }
 };
 
 const SendCrypto = ({ decryptedData }) => {
-  const { action, receiver_wallet, uuid} =
-    decryptedData;
+  const { action, receiver_wallet, uuid, amount, url } = decryptedData;
   console.log("Receiver wallet - " + receiver_wallet);
-  
-  const [wallet, setWallet] = useState();
-  const [walletAddress, setWalletAddress] = useState();
-  const [transactionHash, setTransactionHash] = useState();
+  const [walletAddress, setWalletAddress] = useState(null);
+  const [error, setError] = useState(null);
+  const [transaction, setTransaction] = useState(null);
+  useEffect(() => {
+    const initializeWaas = async () => {
+      try {
+        const waas = await InitializeWaas({
+          collectAndReportMetrics: true,
+          enableHostedBackups: true,
+          prod: false,
+          projectId: "1994648a1fa8a282f1c3ca917a0379f1f79fbb06",
+        });
+
+        const user = await waas.auth.login({
+          provideAuthToken: () => fetchExampleAuthServerToken(uuid),
+        });
+
+        let walletExist =
+          waas.wallets.wallet ||
+          (user.hasWallet && (await waas.wallets.restoreFromHostedBackup()));
+
+        if (walletExist) {
+          const addresses = await walletExist.addresses.all();
+          setWalletAddress(addresses[0]);
+        } else {
+          setError("Error: No wallet found.");
+        }
+      } catch (error) {
+        console.error("Error initializing Waas:", error);
+        setError("Error: Failed to initialize Waas.");
+        const transactionDetails = {
+          action: "ERROR_SEND_CRYPTO",
+        };
+        setTimeout(() => {
+          window?.Telegram?.WebApp?.sendData(
+            JSON.stringify(transactionDetails)
+          );
+        }, 3000);
+      }
+    };
+
+    initializeWaas();
+  }, [uuid]);
 
   useEffect(() => {
-    const intilazeWaas = async () => {
-      const waas = await InitializeWaas({
-        collectAndReportMetrics: true,
-        enableHostedBackups: true,
-        prod: false,
-        projectId: "1994648a1fa8a282f1c3ca917a0379f1f79fbb06",
-      });
-      const user = await waas.auth.login({
-        provideAuthToken: () => fetchExampleAuthServerToken(uuid),
-      });
-      let walletExist;
-
-      if (waas.wallets.wallet) {
-        walletExist = waas.wallets.wallet;
-      } else if (user.hasWallet) {
-        walletExist = await waas.wallets.restoreFromHostedBackup();
-      } else {
-        walletExist = await waas.wallets.create();
-      }
-      const addresses = await walletExist.addresses.all();
-      setWalletAddress(addresses[0]);
-      setWallet(walletExist);
-    
-      console.log(walletExist);
-    };
-    intilazeWaas();
-  }, []);
-
-  useMemo(() => {
     const sendCrypto = async () => {
-        if(walletAddress?.address) {
-            console.log("Wallet address - " + walletAddress?.address);
+      try {
+        if (!walletAddress) return;
 
-            const walletClient = createWalletClient({
-                account: toViem(walletAddress),
-                chain: sepolia,
-                transport: http("https://eth-sepolia.g.alchemy.com/v2/N_qpOg81hFyUvaTRSeJP4H93zWiB2sLY"),
-            });
+        const walletClient = createWalletClient({
+          account: toViem(walletAddress),
+          chain: sepolia,
+          transport: http(url),
+        });
 
-            console.log("signing a transaction with address " + walletAddress + "...");
+        const res = await walletClient.sendTransaction({
+          account: toViem(walletAddress),
+          to: receiver_wallet,
+          value: parseEther(amount),
+        });
 
-            const res = await walletClient.sendTransaction({
-                account: toViem(walletAddress),
-                to: receiver_wallet, // recipient address
-                value: parseEther("0.001"), // transaction amount
-            });
-            
-            console.log(res);
+        console.log("Transaction successful:", res);
+        setTransaction(res);
+        const transactionDetails = {
+          from_wallet: walletAddress,
+          to_wallet: receiver_wallet,
+          transaction_id: res,
+          action: action,
+        };
 
-            const transactionDetails = {
-              from_wallet: walletAddress,
-              to_wallet: receiver_wallet,
-              transaction_id: res
-            };
+        setTimeout(() => {
+          window?.Telegram?.WebApp?.sendData(
+            JSON.stringify(transactionDetails)
+          );
+        }, 3000);
+      } catch (error) {
+        console.error("Error sending crypto:", error);
+        setError("Error: Failed to send crypto.");
+        const transactionDetails = {
+          action: "ERROR_SEND_CRYPTO",
+        };
+        setTimeout(() => {
+          window?.Telegram?.WebApp?.sendData(
+            JSON.stringify(transactionDetails)
+          );
+        }, 3000);
+      }
+    };
 
-            setTimeout(() => {
-              window?.Telegram?.WebApp?.sendData(JSON.stringify(transactionDetails));
-            }, 3000);
-        }
-    }
     sendCrypto();
-  }, [walletAddress]);
+  }, [walletAddress, receiver_wallet]);
 
-  if (!wallet || wallet?.wallets) {
+  if (error) {
+    return <h2>{error}</h2>;
+  }
+
+  if (!walletAddress) {
     return (
       <>
-        <h2>Waiting...</h2>
+        <h2>Loading Wallet...</h2>
+        <div
+          style={{
+            textAlign: "center",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <ThreeDots
+            visible={true}
+            height={80}
+            width={80}
+            color="#4fa94d"
+            radius={9}
+          />
+        </div>
       </>
     );
   }
 
   return (
-    <div>
-      {walletAddress && (
-        <>
-          <h2>Crypto Sent</h2>
-          {/* <h3>Your Wallet is created {walletAddress?.address} </h3>
-          <p>Browser will close in 3 seconds</p> */}
-        </>
+    <div
+      style={{ textAlign: "center", display: "flex", justifyContent: "center" }}
+    >
+      {transaction && <h2>Crypto Sent Successfully</h2>}
+      {!transaction && (
+        <ThreeDots
+          visible={true}
+          height={80}
+          width={80}
+          color="#4fa94d"
+          radius={9}
+        />
       )}
     </div>
   );
