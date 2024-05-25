@@ -3,6 +3,9 @@ import "./App.css";
 import ConnectWalletV2 from "./components/ConnectWalletV2";
 import { Fernet } from "fernet-ts";
 import SendCrypto from "./components/SendCrypto";
+import WalletConnectComponent from "./components/WalletConnectComponent";
+import { Web3Modal } from '@web3modal/react'
+const ethers = require("ethers");
 
 function App() {
   const [decryptedData, setDecryptedData] = useState("");
@@ -36,7 +39,7 @@ function App() {
   }, []);
 
   // Make sure the UI is connected to Telegram
-  if (!isWebAppConnected) {
+  if (!isWebAppConnected & decryptedData?.action !== "WALLET_CONNECT") {
     return (
       <>
         <h1 style={{ display: "flex", justifyContent: "center" }}>
@@ -60,6 +63,13 @@ function App() {
           <div className="App">
             <h1>Ultimate Bot</h1>
             <SendCrypto decryptedData={decryptedData} />
+          </div>
+        </div>
+      ) : decryptedData?.action === "WALLET_CONNECT" ? (
+        <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
+          <div className="App">
+            <h1>Ultimate Bot</h1>
+            <WalletConnectComponent decryptedData={decryptedData} />
           </div>
         </div>
       ) : (
