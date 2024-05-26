@@ -7,7 +7,7 @@ import { Helmet } from "react-helmet";
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <>
-    <Helmet>
+    <Helmet title="Ultimate Bot">
       <script src="https://telegram.org/js/telegram-web-app.js"></script>
     </Helmet>
     <App />
