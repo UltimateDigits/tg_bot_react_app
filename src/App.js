@@ -37,15 +37,15 @@ function App() {
   }, []);
   console.log(isWebAppConnected)
   // Make sure the UI is connected to Telegram
-  if (!isWebAppConnected) {
-    return (
-      <>
-        <h1 style={{ display: "flex", justifyContent: "center" }}>
-          Please Visit Ultimate Bot Website for more Details
-        </h1>
-      </>
-    );
-  }
+  // if (!isWebAppConnected) {
+  //   return (
+  //     <>
+  //       <h1 style={{ display: "flex", justifyContent: "center" }}>
+  //         Please Visit Ultimate Bot Website for more Details
+  //       </h1>
+  //     </>
+  //   );
+  // }
   return (
     <Suspense fallback={"Ultimate Bot"}>
       {decryptedData?.action === "CREATE_MOBILE" ||
