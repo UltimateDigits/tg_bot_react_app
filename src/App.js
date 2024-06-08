@@ -23,6 +23,7 @@ function App() {
           const f = await Fernet.getInstance(secretKey);
           const originalText = await f.decrypt(decodedData);
           const parsedJson = JSON.parse(originalText);
+          console.log(parsedJson)
           setDecryptedData(parsedJson);
         } catch (err) {
           console.log(err);
@@ -34,7 +35,7 @@ function App() {
       setWebAppConnected(true);
     }
   }, []);
-
+  console.log(isWebAppConnected)
   // Make sure the UI is connected to Telegram
   if (!isWebAppConnected) {
     return (
