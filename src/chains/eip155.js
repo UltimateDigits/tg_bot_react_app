@@ -33,7 +33,7 @@ export const EIP155ChainData = {
   8453: {
     name: "Base",
     id: "eip155:8453",
-    rpc: ["https://base.llamarpc.com"],
+    rpc: ["https://base.llamarpc.com","https://base.meowrpc.com"],
     slip44: 60,
     testnet: false,
   },

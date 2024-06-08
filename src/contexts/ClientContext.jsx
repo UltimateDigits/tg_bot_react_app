@@ -235,6 +235,7 @@ export function ClientContextProvider({ children }) {
       setIsInitializing(true);
       const claimedOrigin =
         localStorage.getItem("wallet_connect_dapp_origin") || origin;
+      console.log(claimedOrigin)
       const _client = await Client.init({
         logger: DEFAULT_LOGGER,
         relayUrl: relayerRegion,

@@ -42,14 +42,13 @@ const WalletConnect = ({ decryptedData }) => {
     );
     const [namespace, reference, address] = selectedAccount.split(":");
     const chainId = `${namespace}:${reference}`;
-    console.log(chainId);
     await ethereumRpc.sendTransaction(chainId, address);
   };
 
   useEffect(() => {
     setWalletAddress(accounts[0]?.split(":")[2]);
   }, [accounts]);
-
+  console.log(session)
   return (
     <div>
       {accounts.length > 0 ? (
@@ -73,11 +72,11 @@ const WalletConnect = ({ decryptedData }) => {
               <button onClick={onEthSend}>Send ETH</button>
             </>
           )}
-          <br/>
+          <br />
           <button onClick={disconnect}>Disconnect</button>
         </div>
       ) : (
-        <button onClick={onConnect}>Connect</button>
+        client && <button onClick={onConnect}>Connect</button>
       )}
     </div>
   );
