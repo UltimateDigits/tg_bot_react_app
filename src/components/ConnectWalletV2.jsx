@@ -48,7 +48,6 @@ const ConnectWalletV2 = ({ decryptedData }) => {
       setWallet(walletExist);
 
       if (addresses && addresses[0]) {
-        console.log(addresses[0]);
         const userDetails = {
           walletAddressImpl: addresses[0],
           walletAddress: addresses[0]?.address,

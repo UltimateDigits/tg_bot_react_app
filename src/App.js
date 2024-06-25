@@ -3,6 +3,7 @@ import "./App.css";
 import ConnectWalletV2 from "./components/ConnectWalletV2";
 import { Fernet } from "fernet-ts";
 import SendCrypto from "./components/SendCrypto";
+import WalletConnect from "./container/WalletConnect";
 
 function App() {
   const [decryptedData, setDecryptedData] = useState("");
@@ -23,7 +24,6 @@ function App() {
           const f = await Fernet.getInstance(secretKey);
           const originalText = await f.decrypt(decodedData);
           const parsedJson = JSON.parse(originalText);
-          console.log(parsedJson)
           setDecryptedData(parsedJson);
         } catch (err) {
           console.log(err);
@@ -35,7 +35,6 @@ function App() {
       setWebAppConnected(true);
     }
   }, []);
-  console.log(isWebAppConnected)
   // Make sure the UI is connected to Telegram
   // if (!isWebAppConnected) {
   //   return (
@@ -61,6 +60,14 @@ function App() {
           <div className="App">
             <h1>Ultimate Bot</h1>
             <SendCrypto decryptedData={decryptedData} />
+          </div>
+        </div>
+      ) : decryptedData?.action === "WALLET_CONNECT" ||
+        decryptedData?.action === "WALLET_CONNECT_SEND_CRYPTO" ? (
+        <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
+          <div className="App">
+            <h1> WALLET CONNECT with Ultimate Bot</h1>
+            <WalletConnect decryptedData={decryptedData} />
           </div>
         </div>
       ) : (
