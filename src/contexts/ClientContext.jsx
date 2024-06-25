@@ -42,6 +42,7 @@ const web3Modal = new Web3Modal({
 
 /**
  * Provider
+ * Reference: https://github.com/WalletConnect/web-examples/tree/a50c8eb5a10666f25911713c5358e78f1ca576d6/advanced/dapps/react-dapp-v2
  */
 export function ClientContextProvider({ children }) {
 
@@ -193,20 +194,16 @@ export function ClientContextProvider({ children }) {
         throw new Error("WalletConnect is not initialized");
       }
       // populates existing pairings to state
-      setPairings(_client.pairing.getAll({ active: true }));
-      // console.log(
-      //   "RESTORED PAIRINGS: ",
-      //   _client.pairing.getAll({ active: true })
-      // );
+      setPairings(_client.pairing.getAll({ active: true }));;
 
       if (typeof session !== "undefined") return;
       // populates (the last) existing session to state
+      console.log("client", _client.pairing.getAll());
       if (_client.session.length) {
         const lastKeyIndex = _client.session.keys.length - 1;
         const _session = _client.session.get(
           _client.session.keys[lastKeyIndex]
         );
-        // console.log("RESTORED SESSION:", _session);
         await onSessionConnected(_session);
         return _session;
       }

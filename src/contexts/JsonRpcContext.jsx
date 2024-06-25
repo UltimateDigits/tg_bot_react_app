@@ -87,8 +87,7 @@ export function JsonRpcContextProvider({ children }) {
 
   const ethereumRpc = {
     sendTransaction: _createJsonRpcRequestHandler(
-      async (chainId, address) => {
-        console.log("chainId ", chainId)
+      async (chainId, address, amount) => {
         const caipAccountAddress = `${chainId}:${address}`;
         const account = accounts.find(
           (account) => account === caipAccountAddress
@@ -96,17 +95,17 @@ export function JsonRpcContextProvider({ children }) {
         if (!account)
           throw new Error(`Account for ${caipAccountAddress} not found`);
 
-        const tx = await formatTransaction(account);
-        const balance = BigNumber.from(balances[account][0].balance || "0");
+        const tx = await formatTransaction(account, amount);
+        // const balance = BigNumber.from(balances[account][0].balance || "0");
 
-        if (balance.lt(BigNumber.from(tx.gasPrice).mul(tx.gasLimit))) {
-          return {
-            method: DEFAULT_EIP155_METHODS.ETH_SEND_TRANSACTION,
-            address,
-            valid: false,
-            result: "Insufficient funds for intrinsic transaction cost",
-          };
-        }
+        // if (balance.lt(BigNumber.from(tx.gasPrice).mul(tx.gasLimit))) {
+        //   return {
+        //     method: DEFAULT_EIP155_METHODS.ETH_SEND_TRANSACTION,
+        //     address,
+        //     valid: false,
+        //     result: "Insufficient funds for intrinsic transaction cost",
+        //   };
+        // }
 
         const result = await client.request({
           topic: session.topic,

@@ -21,7 +21,7 @@ export function convertHexToUtf8(hex) {
   }
 }
 
-export async function formatTransaction(account) {
+export async function formatTransaction(account, amount) {
   const [namespace, reference, address] = account.split(":");
   const chainId = `${namespace}:${reference}`;
   const rpc = rpcProvidersByChainId[Number(reference)];
@@ -48,7 +48,7 @@ export async function formatTransaction(account) {
   const gasLimit = encoding.sanitizeHex(encoding.numberToHex(_gasLimit));
   console.log(gasLimit);
   // value
-  const _value = 100000000000000;
+  const _value = amount;
   const value = encoding.sanitizeHex(encoding.numberToHex(_value));
   console.log(value);
   // const { maxFeePerGas, maxPriorityFeePerGas } = await estimateGas(rpc.baseURL);

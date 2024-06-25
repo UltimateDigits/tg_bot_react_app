@@ -16,7 +16,7 @@ export const DEFAULT_MAIN_CHAINS = [
 export const DEFAULT_PROJECT_ID = process.env.REACT_APP_PUBLIC_PROJECT_ID;
 export const DEFAULT_RELAY_URL = process.env.REACT_APP_PUBLIC_RELAY_URL;
 
-export const DEFAULT_LOGGER = "debug";
+export const DEFAULT_LOGGER = "info";
 
 export const DEFAULT_APP_METADATA = {
   name: "Ultimate Bot",
