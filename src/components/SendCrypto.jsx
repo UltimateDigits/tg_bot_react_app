@@ -1,99 +1,89 @@
 import React, { useEffect, useState } from "react";
-import { InitializeWaas } from "@coinbase/waas-sdk-web";
 import { toViem } from "@coinbase/waas-sdk-viem";
-import { createWalletClient, http, parseEther } from "viem";
-import { sepolia } from "viem/chains";
+import { createWalletClient, http, getContract, parseUnits } from "viem";
+import * as chains from "viem/chains";
 import { ThreeDots } from "react-loader-spinner";
-
-const fetchExampleAuthServerToken = async (uuid) => {
-  try {
-    const resp = await fetch(
-      "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ uuid }),
-      }
-    );
-    const data = await resp.json();
-    return data.token;
-  } catch (error) {
-    console.error("Error fetching auth server token:", error);
-    throw new Error("Failed to fetch auth server token");
-  }
-};
+import { fetchAuthServerUserToken } from "../helpers/utils";
+import { useEVMAddress, useWalletContext } from "@coinbase/waas-sdk-web-react";
+import ERC20_ABI from "../abi/UltABI.json";
 
 const SendCrypto = ({ decryptedData }) => {
-  const { action, receiver_wallet, uuid, amount, url } = decryptedData;
-  console.log("Receiver wallet - " + receiver_wallet);
-  const [walletAddress, setWalletAddress] = useState(null);
+  const { action, receiver_wallet, uuid, amount, url, chain, tokenAddress } =
+    decryptedData;
   const [error, setError] = useState(null);
   const [transaction, setTransaction] = useState(null);
+  const { waas, user, wallet, isLoggingIn } = useWalletContext();
+  const evmAddress = useEVMAddress(wallet);
+
   useEffect(() => {
-    const initializeWaas = async () => {
-      try {
-        const waas = await InitializeWaas({
-          collectAndReportMetrics: true,
-          enableHostedBackups: true,
-          prod: false,
-          projectId: "1994648a1fa8a282f1c3ca917a0379f1f79fbb06",
-        });
+    if (!user && !isLoggingIn) {
+      waas?.login({
+        provideAuthToken: async () => fetchAuthServerUserToken(uuid),
+      });
+    }
+  }, [waas, uuid, isLoggingIn, user]);
 
-        const user = await waas.auth.login({
-          provideAuthToken: () => fetchExampleAuthServerToken(uuid),
-        });
-
-        let walletExist =
-          waas.wallets.wallet ||
-          (user.hasWallet && (await waas.wallets.restoreFromHostedBackup()));
-
-        if (walletExist) {
-          const addresses = await walletExist.addresses.all();
-          setWalletAddress(addresses[0]);
-        } else {
-          setError("Error: No wallet found.");
-        }
-      } catch (error) {
-        console.error("Error initializing Waas:", error);
-        setError("Error: Failed to initialize Waas.");
-        const transactionDetails = {
-          action: "ERROR_SEND_CRYPTO",
-        };
-        setTimeout(() => {
-          window?.Telegram?.WebApp?.sendData(
-            JSON.stringify(transactionDetails)
-          );
-        }, 3000);
+  useEffect(() => {
+    const getUserWalletDetails = async () => {
+      if (wallet) {
+        return await wallet?.addresses.all();
       }
+      if (user.hasWallet && !wallet) {
+        await user.restoreFromHostedBackup();
+      } else {
+        await user.create();
+      }
+      return await wallet?.addresses.all();
     };
 
-    initializeWaas();
-  }, [uuid]);
+    const fetchUserWalletDetails = async () => {
+      if (user) {
+        await getUserWalletDetails();
+      }
+    };
+    fetchUserWalletDetails();
+  }, [user, wallet]);
 
   useEffect(() => {
     const sendCrypto = async () => {
       try {
-        if (!walletAddress) return;
+        if (!evmAddress) return;
 
         const walletClient = createWalletClient({
-          account: toViem(walletAddress),
-          chain: sepolia,
+          chain: chains[chain],
           transport: http(url),
         });
 
-        const res = await walletClient.sendTransaction({
-          account: toViem(walletAddress),
-          to: receiver_wallet,
-          value: parseEther(amount),
+        // Create an instance of the token contract
+        const tokenContract = new getContract({
+          address: tokenAddress,
+          abi: ERC20_ABI,
+          client: walletClient,
         });
 
-        console.log("Transaction successful:", res);
+        // Convert amount to token's smallest unit (usually 18 decimals for ERC-20)
+        const amountInWei = parseUnits(amount, 18);
+        // To send ETH, Use the following format
+        // const res = await walletClient.sendTransaction({
+        //   account: toViem(evmAddress),
+        //   to: receiver_wallet,
+        //   value: parseEther(amount),
+        // });
+
+        const result = await tokenContract.read.totalSupply();
+        console.log("Total Supply:", result);
+
+        const res = await walletClient.writeContract({
+          account: toViem(evmAddress),
+          address: tokenAddress,
+          abi: ERC20_ABI,
+          functionName: "transfer",
+          args: [receiver_wallet, amountInWei.toString()],
+        });
+
         setTransaction(res);
         const transactionDetails = {
-          from_wallet: walletAddress,
+          from_wallet: evmAddress?.address,
           to_wallet: receiver_wallet,
           transaction_id: res,
           action: action,
@@ -119,13 +109,13 @@ const SendCrypto = ({ decryptedData }) => {
     };
 
     sendCrypto();
-  }, [walletAddress, receiver_wallet]);
+  }, [receiver_wallet, url, amount, action, evmAddress, chain, tokenAddress]);
 
   if (error) {
     return <h2>{error}</h2>;
   }
 
-  if (!walletAddress) {
+  if (!evmAddress) {
     return (
       <>
         <h2>Loading Wallet...</h2>

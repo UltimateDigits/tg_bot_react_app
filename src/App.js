@@ -69,7 +69,15 @@ function App() {
         <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
           <div className="App">
             <h1>Ultimate Bot</h1>
-            <SendCrypto decryptedData={decryptedData} />
+            <WalletProvider
+              projectId={PROJECT_ID}
+              verbose
+              collectAndReportMetrics
+              enableHostedBackups
+              autoCreateWallet
+            >
+              <SendCrypto decryptedData={decryptedData} />
+            </WalletProvider>
           </div>
         </div>
       ) : decryptedData?.action === "WALLET_CONNECT" ||

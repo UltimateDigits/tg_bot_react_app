@@ -3,13 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@coinbase/corekms": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/corekms/corekms-0.1.12.tgz",
-    "@coinbase/sandbox-rpc": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/sandbox-rpc/sandbox-rpc-1.1.5.tgz",
-    "@coinbase/waas-sdk-example-auth-server": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-example-auth-server/waas-sdk-example-auth-server-2.1.1.tgz",
-    "@coinbase/waas-sdk-viem": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-viem/waas-sdk-viem-3.0.1.tgz",
-    "@coinbase/waas-sdk-web": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-sdk-web/waas-sdk-web-3.2.0.tgz",
+    "@coinbase/waas-sdk-viem": "^3.0.2",
+    "@coinbase/waas-sdk-web": "^3.3.2",
     "@coinbase/waas-sdk-web-react": "^3.2.2",
-    "@coinbase/waas-server-auth": "https://api.developer.coinbase.com/waas/consumer/1994648a1fa8a282f1c3ca917a0379f1f79fbb06/waas-server-auth/waas-server-auth-2.1.0.tgz",
     "@ethereumjs/util": "^9.0.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
@@ -37,7 +33,7 @@
     "typescript": "5.3.3"
   },
   "scripts": {
-    "start": "set HTTPS=false&&react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -61,6 +57,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "ajv": "^7.2.4"
   }
 }
