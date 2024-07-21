@@ -37,7 +37,7 @@ To install and run this project locally, follow these steps:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/ultimate-digits-telegram-mini-app-ui.git
+   git clone https://github.com/UltimateDigits/tg_bot_react_app.git
    cd ultimate-digits-telegram-mini-app-ui
    ```
 
