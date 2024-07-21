@@ -273,17 +273,15 @@ export async function apiGetAccountBalance(address, chainId) {
 }
 
 export const fetchAuthServerUserToken = async (uuid) => {
-  const resp = await fetch(
-    "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
-    {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uuid: uuid }),
-    }
-  ).then((r) => r.json());
+  const cbAuthURL = process.env.REACT_APP_COINBASE_AUTH_SERVER;
+  const resp = await fetch(cbAuthURL, {
+    method: "post",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ uuid: uuid }),
+  }).then((r) => r.json());
   return resp.token;
 };
 

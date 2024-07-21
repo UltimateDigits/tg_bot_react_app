@@ -52,6 +52,7 @@ To install and run this project locally, follow these steps:
      ```env
      REACT_APP_PUBLIC_PROJECT_ID=""
      REACT_APP_ENCRYPTION_KEY=""
+     REACT_APP_COINBASE_AUTH_SERVER=""
      ```
 
 ## Usage
