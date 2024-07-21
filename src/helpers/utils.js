@@ -4,6 +4,7 @@ import { Contract, providers, utils } from "ethers";
 import { hexToBuffer, bufferToHex } from "@walletconnect/encoding";
 import { keccak256 } from "ethers/lib/utils";
 import { ecrecover, fromRpcSig, publicToAddress } from "@ethereumjs/util";
+import parsePhoneNumber from "libphonenumber-js";
 
 export function convertHexToNumber(hex) {
   try {
@@ -270,3 +271,32 @@ export async function apiGetAccountBalance(address, chainId) {
   const balance = parseInt(result, 16).toString();
   return { balance, ...token };
 }
+
+export const fetchAuthServerUserToken = async (uuid) => {
+  const resp = await fetch(
+    "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
+    {
+      method: "post",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uuid: uuid }),
+    }
+  ).then((r) => r.json());
+  return resp.token;
+};
+
+export const parsePhoneDetails = (phoneNumber) => {
+  const phoneDetails = parsePhoneNumber(phoneNumber);
+  if (phoneDetails) {
+    return {
+      countryCode: phoneDetails.countryCallingCode,
+      mobileNumber: phoneDetails.nationalNumber,
+    };
+  }
+  return {
+    countryCode: null,
+    mobileNumber: null,
+  };
+};

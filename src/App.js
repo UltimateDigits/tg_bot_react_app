@@ -1,14 +1,15 @@
 import { Suspense, useEffect, useState } from "react";
 import "./App.css";
-import ConnectWalletV2 from "./components/ConnectWalletV2";
 import { Fernet } from "fernet-ts";
 import SendCrypto from "./components/SendCrypto";
 import WalletConnect from "./container/WalletConnect";
+import ConnectWalletCoinbase from "./components/ConnectWalletCoinbase";
+import { WalletProvider } from "@coinbase/waas-sdk-web-react";
 
 function App() {
   const [decryptedData, setDecryptedData] = useState("");
   const [isWebAppConnected, setWebAppConnected] = useState(false);
-
+  const PROJECT_ID = process.env.REACT_APP_PUBLIC_PROJECT_ID;
   if (window?.Telegram?.WebApp) {
     window.Telegram.WebApp.setBackgroundColor("#ffffff");
     window.Telegram.WebApp.expand();
@@ -47,12 +48,21 @@ function App() {
   // }
   return (
     <Suspense fallback={"Ultimate Bot"}>
-      {decryptedData?.action === "CREATE_MOBILE" ||
-      decryptedData?.action === "CREATE_TELEGRAM" ? (
+      {["CREATE_MOBILE", "CREATE_TELEGRAM", "EXISTING_UD_USER"].includes(
+        decryptedData?.action
+      ) ? (
         <div style={{ backgroundColor: "white", minHeight: "100vh" }}>
           <div className="App">
             <h1>Ultimate Bot</h1>
-            <ConnectWalletV2 decryptedData={decryptedData} />
+            <WalletProvider
+              projectId={PROJECT_ID}
+              verbose
+              collectAndReportMetrics
+              enableHostedBackups
+              autoCreateWallet
+            >
+              <ConnectWalletCoinbase decryptedData={decryptedData} />
+            </WalletProvider>
           </div>
         </div>
       ) : decryptedData?.action === "SEND_CRYPTO" ? (

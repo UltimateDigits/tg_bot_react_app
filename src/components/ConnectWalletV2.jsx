@@ -1,21 +1,8 @@
 import { InitializeWaas } from "@coinbase/waas-sdk-web";
 import React, { useEffect, useState } from "react";
 import { Triangle } from "react-loader-spinner";
+import { fetchAuthServerUserToken } from "../helpers/utils";
 
-const fetchExampleAuthServerToken = async (uuid) => {
-  const resp = await fetch(
-    "https://ud-backend-six.vercel.app/coinbase/coinbaseAuth",
-    {
-      method: "post",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ uuid: uuid }),
-    }
-  ).then((r) => r.json());
-  return resp.token;
-};
 
 const ConnectWalletV2 = ({ decryptedData }) => {
   const { action, firstName, phone_number, uuid, userid, username } =
@@ -33,7 +20,7 @@ const ConnectWalletV2 = ({ decryptedData }) => {
         projectId: "1994648a1fa8a282f1c3ca917a0379f1f79fbb06",
       });
       const user = await waas.auth.login({
-        provideAuthToken: () => fetchExampleAuthServerToken(uuid),
+        provideAuthToken: () => fetchAuthServerUserToken(uuid),
       });
       let walletExist;
       if (waas.wallets.wallet) {
@@ -49,7 +36,6 @@ const ConnectWalletV2 = ({ decryptedData }) => {
 
       if (addresses && addresses[0]) {
         const userDetails = {
-          walletAddressImpl: addresses[0],
           walletAddress: addresses[0]?.address,
           firstName: firstName,
           phone_number: phone_number,
