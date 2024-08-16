@@ -73,5 +73,5 @@ The app is injected into the Telegram environment using the Mini App SDK. Ensure
 
 ### Coinbase Embedded Wallets
 
-The app uses Coinbase Embedded Wallets to create and manage user wallets. Ensure you have the necessary API keys and permissions configured in the `.env` file.
+The app uses Coinbase Embedded Wallets to create and manage user wallets. Ensure you have the necessary API keys and permissions configured in the `.env` file. https://docs.cdp.coinbase.com/embedded-wallets/docs/welcome 
 

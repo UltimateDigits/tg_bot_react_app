@@ -4,7 +4,7 @@ import { Contract, providers, utils } from "ethers";
 import { hexToBuffer, bufferToHex } from "@walletconnect/encoding";
 import { keccak256 } from "ethers/lib/utils";
 import { ecrecover, fromRpcSig, publicToAddress } from "@ethereumjs/util";
-import parsePhoneNumber from "libphonenumber-js";
+import { parsePhoneNumber } from "awesome-phonenumber";
 
 export function convertHexToNumber(hex) {
   try {
@@ -286,15 +286,21 @@ export const fetchAuthServerUserToken = async (uuid) => {
 };
 
 export const parsePhoneDetails = (phoneNumber) => {
-  const phoneDetails = parsePhoneNumber(phoneNumber);
-  if (phoneDetails) {
+  let phoneDetails;
+  if (phoneNumber.includes("+")) {
+    phoneDetails = parsePhoneNumber(phoneNumber);
+  } else {
+    phoneDetails = parsePhoneNumber(`+${phoneNumber}`);
+  }
+  if (phoneDetails && phoneDetails?.valid) {
     return {
-      countryCode: phoneDetails.countryCallingCode,
-      mobileNumber: phoneDetails.nationalNumber,
+      countryCode: phoneDetails.countryCode,
+      mobileNumber: phoneDetails?.number?.significant,
     };
   }
+
   return {
-    countryCode: null,
-    mobileNumber: null,
+    countryCode: 0,
+    mobileNumber: 0,
   };
 };
